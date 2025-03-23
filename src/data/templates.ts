@@ -1,4 +1,5 @@
 import { JobDescription } from '../types';
+import axios from 'axios';
 
 export interface Template {
   id: string;
@@ -796,3 +797,37 @@ export const getAllTemplateCategories = (): TemplateCategory[] => {
 export const getTemplateById = (id: string): Template | undefined => {
   return templates.find(template => template.id === id);
 };
+
+export async function generateComparison(payload: any) {
+  const edgeFunctionUrls = [
+    'https://edge-function-1.example.com',
+    'https://edge-function-2.example.com',
+    'https://edge-function-3.example.com',
+  ];
+
+  try {
+    // Send API calls to all edge functions simultaneously
+    const responses = await Promise.all(
+      edgeFunctionUrls.map((url) =>
+        axios.post(url, payload).catch((error) => ({
+          error: true,
+          message: error.message,
+        }))
+      )
+    );
+
+    // Process responses
+    const results = responses.map((response, index) => {
+      if (response.error) {
+        console.error(`Error from edge function ${index + 1}:`, response.message);
+        return { success: false, error: response.message };
+      }
+      return { success: true, data: response.data };
+    });
+
+    return results;
+  } catch (error) {
+    console.error('Unexpected error:', error);
+    throw new Error('Failed to generate comparison.');
+  }
+}
