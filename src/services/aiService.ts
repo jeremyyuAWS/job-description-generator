@@ -27,15 +27,15 @@ try {
 // Define the API endpoints for different models
 const API_ENDPOINTS = {
   claude: "https://gkzwjeanhjowwxzflcxb.supabase.co/functions/v1/claude-sonnet-jd-generator",
-  gpt4o: "https://gkzwjeanhjowwxzflcxb.supabase.co/functions/v1/gpt--4o-jd-generator",
-  llama: "https://gkzwjeanhjowwxzflcxb.supabase.co/functions/v1/grok-llama-jd-generator"
+  gpt4o: "https://gkzwjeanhjowwxzflcxb.supabase.co/functions/v1/job-description-gpt4",
+  llama: "https://gkzwjeanhjowwxzflcxb.supabase.co/functions/v1/job-description-llama"
 };
 
 // LLM agent IDs for Lyzr integration
 const AGENT_IDS = {
   claude: "67df369d8f451bb9b9b6cbe2",
   gpt4o: "67df490b8f451bb9b9b6cc8b",
-  llama: "67df490b8f451bb9b9b6cc8c" // This is the placeholder ID for LLaMA
+  llama: "67df490b8f451bb9b9b6cc8c"
 };
 
 /**
@@ -84,7 +84,23 @@ export async function generateContent({
     // but they're not part of the prompt itself
     user_id: "hirewrite@app.com",
     agent_id: AGENT_IDS[model],
-    session_id: AGENT_IDS[model]
+    session_id: AGENT_IDS[model],
+    
+    // Add the required message field
+    message: JSON.stringify({
+      jobTitle,
+      seniority,
+      employmentType,
+      remoteOption,
+      section,
+      tone,
+      currentContent: currentContent || '',
+      teamSize: teamSize || '',
+      reportingTo: reportingTo || '',
+      tools: tools || '',
+      action: action || 'generate',
+      additionalContext: additionalContext || ''
+    })
   };
 
   // Check if DevTools is enabled and get context
